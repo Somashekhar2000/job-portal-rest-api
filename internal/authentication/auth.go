@@ -7,23 +7,26 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// auth stuct with fields private and public key
 type Auth struct {
-	privateKety *rsa.PrivateKey
-	publicKey *rsa.PublicKey
+	privateKey *rsa.PrivateKey
+	publicKey  *rsa.PublicKey
 }
 
-type Authenticaton interface{
-	GenerateToken(claims jwt.RegisteredClaims)(string error)
-	ValidateToken(token string)(jwt.RegisteredClaims,error)
+// authentication interface to generate and validat etoken
+type Authenticaton interface {
+	GenerateToken(claims jwt.RegisteredClaims) (string, error)
+	ValidateToken(token string) (jwt.RegisteredClaims, error)
 }
 
-func NewAuth(privateKey *rsa.PrivateKey, publicKey *rsa.PublicKey)(Authenticaton,error){
-	if privateKey==nil && publicKey==nil{
-		return nil,errors.New("public and private are nil")
+// fator function taht returns authentication having struct
+func NewAuth(privateKey *rsa.PrivateKey, publicKey *rsa.PublicKey) (Authenticaton, error) {
+	if privateKey == nil && publicKey == nil {
+		return nil, errors.New("public and private are nil")
 	}
 
 	return &Auth{
-		privateKety: privateKey,
-		publicKey: publicKey,
-	},nil
+		privateKey: privateKey,
+		publicKey:  publicKey,
+	}, nil
 }
