@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"job-portal-api/database"
 	"job-portal-api/handler"
@@ -9,6 +10,7 @@ import (
 	"job-portal-api/service"
 	"net/http"
 	"os"
+	"os/signal"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -92,5 +94,35 @@ func StartApp() error {
 		IdleTimeout:  800 * time.Second,
 		Handler:      handler.SetupApi(a, service),
 	}
+
+	serverErrors := make(chan error, 1)
+
+	go func() {
+		log.Info().Str("port", api.Addr).Msg("main started : api is listening")
+		serverErrors <- api.ListenAndServe()
+	}()
+
+	shutdown := make(chan os.Signal, 1)
+
+	signal.Notify(shutdown, os.Interrupt)
+
+	select {
+	case err := <-serverErrors:
+		return fmt.Errorf("server error : %w", err)
+
+	case sig := <-shutdown:
+		log.Info().Msgf("main: start shutdown %s", sig)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		err := api.Shutdown(ctx)
+		if err != nil {
+			err := api.Close()
+			return fmt.Errorf("could not stop server gracefully : %w", err)
+		}
+
+	}
+
+	return nil
 
 }

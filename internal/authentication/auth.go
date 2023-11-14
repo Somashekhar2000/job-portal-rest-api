@@ -7,6 +7,10 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+type Key int
+
+const AuthKey Key = 1
+
 // auth stuct with fields private and public key
 type Auth struct {
 	privateKey *rsa.PrivateKey

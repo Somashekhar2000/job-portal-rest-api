@@ -1,12 +1,25 @@
 package handler
 
 import (
-	"job-portal-api/internal/authentication"
+	"errors"
 	"job-portal-api/service"
 
-	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 )
 
-func SetupApi(auth authentication.Authenticaton, service service.Services) *gin.Engine {
+type Handler struct {
+	service service.Services
+}
 
+type HandlerFuncs interface {
+}
+
+func NewHandler(service service.Services) (HandlerFuncs, error) {
+	if service == nil {
+		log.Info().Msg("service cannot be nil")
+		return nil, errors.New("Service cannot be nil")
+	}
+	return &Handler{
+		service: service,
+	}, nil
 }
