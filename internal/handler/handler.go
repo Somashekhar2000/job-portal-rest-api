@@ -29,6 +29,7 @@ func SetupApi(auth authentication.Authenticaton, service service.UserService) *g
 
 	router.Use(mid.Log(), gin.Recovery())
 
-	router.POST("/api/Register", handler.Signup)
+	router.POST("/api/signup", handler.Signup)
+	router.POST("/api/login", handler.login)
 
 }

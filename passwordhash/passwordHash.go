@@ -1,6 +1,7 @@
 package passwordhash
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/rs/zerolog/log"
@@ -14,4 +15,13 @@ func HashingPassword(password string) (string, error) {
 		return "", fmt.Errorf("error in hashing password : %w", err)
 	}
 	return string(hashedPassword), nil
+}
+
+func CheckingHashPassword(password string, hashedPassword string) error {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	if err != nil {
+		log.Error().Err(err).Msg("error wrong password")
+		return errors.New("wrong password")
+	}
+	return nil
 }

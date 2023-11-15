@@ -6,10 +6,15 @@ import (
 	"job-portal-api/internal/model"
 	"job-portal-api/internal/repository"
 	passwordhash "job-portal-api/passwordHash"
+	"strconv"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type UserService interface {
-	UserSignupDetail(userSignup model.UserSignup) (model.User, error)
+	UserSignup(userSignup model.UserSignup) (model.User, error)
+	Userlogin(userSignin model.UserLogin) (string, error)
 }
 
 func NewUserService(userRepo repository.UserRepository, a authentication.Authenticaton) (UserService, error) {
@@ -22,7 +27,7 @@ func NewUserService(userRepo repository.UserRepository, a authentication.Authent
 	}, nil
 }
 
-func (s *Service) UserSignupDetail(userData model.UserSignup) (model.User, error) {
+func (s *Service) UserSignup(userData model.UserSignup) (model.User, error) {
 	hashedPassword, err := passwordhash.HashingPassword(userData.Password)
 	if err != nil {
 		return model.User{}, err
@@ -41,4 +46,32 @@ func (s *Service) UserSignupDetail(userData model.UserSignup) (model.User, error
 
 	return userDetails, nil
 
+}
+
+func (s *Service) Userlogin(userSignin model.UserLogin) (string, error) {
+
+	userData, err := s.userRepo.CheckUser(userSignin.EmailID)
+	if err != nil {
+		return "", err
+	}
+
+	err = passwordhash.CheckingHashPassword(userSignin.Password, userData.Password)
+	if err != nil {
+		return "", err
+	}
+
+	claims := jwt.RegisteredClaims{
+		Issuer:    "job portal project",
+		Subject:   strconv.FormatUint(uint64(userData.ID), 10),
+		Audience:  jwt.ClaimStrings{"users"},
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
+	}
+
+	token, err := s.authentication.GenerateToken(claims)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }

@@ -15,7 +15,7 @@ import (
 
 type UserHandler interface {
 	Signup(c *gin.Context)
-	// Signin(c *gin.Context)
+	login(c *gin.Context)
 }
 
 func NewUserHandler(service service.UserService) (UserHandler, error) {
@@ -55,7 +55,7 @@ func (h *Handler) Signup(c *gin.Context) {
 		return
 	}
 
-	userdata, err := h.s.UserSignupDetail(userData)
+	userdata, err := h.s.UserSignup(userData)
 	if err != nil {
 		log.Error().Err(err).Str("trace ID :", traceID).Msg("error in user sigup")
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error ": http.StatusText(http.StatusInternalServerError)})
@@ -66,6 +66,38 @@ func (h *Handler) Signup(c *gin.Context) {
 
 }
 
-func (h *Handler) Signin(c *gin.Context) {
+func (h *Handler) login(c *gin.Context) {
+	ctx := c.Request.Context()
 
+	traceId, ok := ctx.Value(middleware.TraceIDKey).(string)
+	if !ok {
+		log.Info().Msg("missing trace ID")
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error ": http.StatusText(http.StatusInternalServerError)})
+		return
+	}
+
+	var userData model.UserLogin
+
+	err := json.NewDecoder(c.Request.Body).Decode(userData)
+	if err != nil {
+		log.Error().Err(err).Str("trace Id :", traceId).Msg("error in decoding")
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error ": http.StatusText(http.StatusBadRequest)})
+		return
+	}
+
+	validate := validator.New()
+	err = validate.Struct(userData)
+	if err != nil {
+		log.Error().Err(err).Str("trace ID :", traceId).Msg("error in validating")
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error ": http.StatusText(http.StatusBadRequest)})
+		return
+	}
+
+	token, err := h.s.Userlogin(userData)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error ": http.StatusText(http.StatusBadRequest)})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"token ": token})
 }
