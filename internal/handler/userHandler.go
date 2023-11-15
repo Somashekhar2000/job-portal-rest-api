@@ -18,12 +18,12 @@ type UserHandler interface {
 	login(c *gin.Context)
 }
 
-func NewUserHandler(service service.UserService) (UserHandler, error) {
-	if service == nil {
+func NewUserHandler(serviceUser service.UserService) (UserHandler, error) {
+	if serviceUser == nil {
 		return nil, errors.New("userService Cannot be nil")
 	}
 	return &Handler{
-		s: service,
+		serviceUser: serviceUser,
 	}, nil
 }
 
@@ -55,7 +55,7 @@ func (h *Handler) Signup(c *gin.Context) {
 		return
 	}
 
-	userdata, err := h.s.UserSignup(userData)
+	userdata, err := h.serviceUser.UserSignup(userData)
 	if err != nil {
 		log.Error().Err(err).Str("trace ID :", traceID).Msg("error in user sigup")
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error ": http.StatusText(http.StatusInternalServerError)})
@@ -93,7 +93,7 @@ func (h *Handler) login(c *gin.Context) {
 		return
 	}
 
-	token, err := h.s.Userlogin(userData)
+	token, err := h.serviceUser.Userlogin(userData)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error ": http.StatusText(http.StatusBadRequest)})
 		return

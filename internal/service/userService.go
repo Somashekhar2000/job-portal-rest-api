@@ -19,7 +19,7 @@ type UserService interface {
 
 func NewUserService(userRepo repository.UserRepository, a authentication.Authenticaton) (UserService, error) {
 	if userRepo == nil {
-		return nil, errors.New("User Repo cannot be nil")
+		return nil, errors.New("user Repo cannot be nil")
 	}
 	return &Service{
 		userRepo:       userRepo,

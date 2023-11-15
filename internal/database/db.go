@@ -35,5 +35,8 @@ func DatabaseConnection() (*gorm.DB, error) {
 		return nil, fmt.Errorf("database is not connected : %w", err)
 	}
 
+	//need auto migrate
+	.
+
 	return db, nil
 }

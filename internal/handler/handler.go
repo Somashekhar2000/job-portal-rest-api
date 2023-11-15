@@ -10,10 +10,11 @@ import (
 )
 
 type Handler struct {
-	s service.UserService
+	serviceUser    service.UserService
+	serviceComapny service.ComapnyService
 }
 
-func SetupApi(auth authentication.Authenticaton, service service.UserService) *gin.Engine {
+func SetupApi(auth authentication.Authenticaton, userService service.UserService, comapnyService service.ComapnyService) *gin.Engine {
 
 	router := gin.New()
 
@@ -22,14 +23,22 @@ func SetupApi(auth authentication.Authenticaton, service service.UserService) *g
 		log.Panic("middleware are not set")
 	}
 
-	handler, err := NewUserHandler(service)
+	userHandler, err := NewUserHandler(userService)
 	if err != nil {
-		log.Panic("handlers are not set")
+		log.Panic("user handlers are not set")
+	}
+
+	companyHandler, err := NewCompanyHandler(comapnyService)
+	if err != nil {
+		log.Panic("company handlers are not set")
 	}
 
 	router.Use(mid.Log(), gin.Recovery())
 
-	router.POST("/api/signup", handler.Signup)
-	router.POST("/api/login", handler.login)
+	router.POST("/api/signup", userHandler.Signup)
+	router.POST("/api/login", userHandler.login)
 
+	router.POST("/api/create_comapny", companyHandler.AddCompany)
+
+	return router
 }

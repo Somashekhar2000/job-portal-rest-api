@@ -58,7 +58,7 @@ func StartApp() error {
 	}
 
 	//callig factory function to get authentication
-	a, err := authentication.NewAuth(privateKey, publicKey)
+	auth, err := authentication.NewAuth(privateKey, publicKey)
 	if err != nil {
 		log.Info().Msg("error in auth function ")
 		return fmt.Errorf("error in auth function : %w", err)
@@ -74,25 +74,36 @@ func StartApp() error {
 	}
 
 	//initializing the repo layer
-	repo, err := repository.NewUserRepo(db)
+	userRepo, err := repository.NewUserRepo(db)
 	if err != nil {
-		log.Info().Msg("error while initializing the repository")
+		log.Info().Msg("error while initializing the user repository")
 		return err
 	}
 
-	service, err := service.NewUserService(repo, a)
+	companyRepo, err := repository.NewCompanyRepo(db)
 	if err != nil {
-		log.Info().Msg("error while initializing service")
-		return fmt.Errorf("error while initializing service : %w", err)
+		log.Info().Msg("error while initializing the company repository")
+		return err
 	}
 
+	userService, err := service.NewUserService(userRepo, auth)
+	if err != nil {
+		log.Info().Msg("error while initializing user service")
+		return fmt.Errorf("error while initializing uservservice : %w", err)
+	}
+
+	companyService, err := service.NewCompanyService(companyRepo)
+	if err != nil {
+		log.Info().Msg("error while initializing company service")
+		return fmt.Errorf("error while initializing company service : %w", err)
+	}
 	//initilazing http server
 	api := http.Server{
 		Addr:         "8087",
 		ReadTimeout:  8000 * time.Second,
 		WriteTimeout: 800 * time.Second,
 		IdleTimeout:  800 * time.Second,
-		Handler:      handler.SetupApi(a, service),
+		Handler:      handler.SetupApi(auth, userService, companyService),
 	}
 
 	serverErrors := make(chan error, 1)

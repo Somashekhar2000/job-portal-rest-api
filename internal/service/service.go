@@ -7,5 +7,6 @@ import (
 
 type Service struct {
 	userRepo       repository.UserRepository
+	comapnayRepo   repository.ComapnyRepo
 	authentication authentication.Authenticaton
 }
