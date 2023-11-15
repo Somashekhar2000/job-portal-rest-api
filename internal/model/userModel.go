@@ -2,7 +2,7 @@ package model
 
 import "gorm.io/gorm"
 
-type UserRegister struct {
+type UserSignup struct {
 	UserName string `json:"username" validate:"required"`
 	EmailID  string `json:"emailID" validate:"required"`
 	Password string `json:"password" validate:"required"`

@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
-	"job-portal-api/database"
-	"job-portal-api/handler"
 	"job-portal-api/internal/authentication"
-	"job-portal-api/repository"
-	"job-portal-api/service"
+	"job-portal-api/internal/database"
+	"job-portal-api/internal/handler"
+	"job-portal-api/internal/repository"
+	"job-portal-api/internal/service"
 	"net/http"
 	"os"
 	"os/signal"
@@ -74,13 +74,13 @@ func StartApp() error {
 	}
 
 	//initializing the repo layer
-	repo, err := repository.NewRepository(db)
+	repo, err := repository.NewUserRepo(db)
 	if err != nil {
 		log.Info().Msg("error while initializing the repository")
 		return err
 	}
 
-	service, err := service.NewService(repo, a)
+	service, err := service.NewUserService(repo, a)
 	if err != nil {
 		log.Info().Msg("error while initializing service")
 		return fmt.Errorf("error while initializing service : %w", err)
