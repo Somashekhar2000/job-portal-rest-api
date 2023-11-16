@@ -4,8 +4,8 @@ import (
 	"errors"
 	"job-portal-api/internal/authentication"
 	"job-portal-api/internal/model"
+	"job-portal-api/internal/passwordhash"
 	"job-portal-api/internal/repository"
-	passwordhash "job-portal-api/passwordHash"
 	"strconv"
 	"time"
 

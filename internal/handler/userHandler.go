@@ -40,7 +40,7 @@ func (h *Handler) Signup(c *gin.Context) {
 
 	var userData model.UserSignup
 
-	err := json.NewDecoder(c.Request.Body).Decode(userData)
+	err := json.NewDecoder(c.Request.Body).Decode(&userData)
 	if err != nil {
 		log.Error().Err(err).Str("trace ID : ", traceID).Msg("error in decoding signup struct")
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error ": http.StatusText(http.StatusBadRequest)})
@@ -78,7 +78,7 @@ func (h *Handler) login(c *gin.Context) {
 
 	var userData model.UserLogin
 
-	err := json.NewDecoder(c.Request.Body).Decode(userData)
+	err := json.NewDecoder(c.Request.Body).Decode(&userData)
 	if err != nil {
 		log.Error().Err(err).Str("trace Id :", traceId).Msg("error in decoding")
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error ": http.StatusText(http.StatusBadRequest)})

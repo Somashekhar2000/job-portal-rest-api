@@ -10,6 +10,8 @@ import (
 
 type ComapnyService interface {
 	AddingCompany(company model.AddCompany) (model.Company, error)
+	ViewCompanyById(Id uint64) (model.Company, error)
+	ViewAllCompanies() ([]model.Company, error)
 }
 
 func NewCompanyService(comapnyRepo repository.ComapnyRepo) (ComapnyService, error) {
@@ -36,4 +38,23 @@ func (s *Service) AddingCompany(company model.AddCompany) (model.Company, error)
 	}
 
 	return companyData, nil
+}
+
+func (s *Service) ViewCompanyById(cId uint64) (model.Company, error) {
+	companyData, err := s.comapnayRepo.GetCompanyByID(cId)
+	if err != nil {
+		return model.Company{}, err
+	}
+	return companyData, nil
+}
+
+func (s *Service) ViewAllCompanies() ([]model.Company, error) {
+
+	companiesData, err := s.comapnayRepo.GetAllCompanies()
+	if err != nil {
+		return nil, errors.ErrUnsupported
+
+	}
+
+	return companiesData, nil
 }

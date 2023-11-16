@@ -39,6 +39,8 @@ func SetupApi(auth authentication.Authenticaton, userService service.UserService
 	router.POST("/api/login", userHandler.login)
 
 	router.POST("/api/create_comapny", companyHandler.AddCompany)
+	router.GET("/api/get_company/:id", companyHandler.ViewCompanyByID)
+	router.GET("/api/get_companies", companyHandler.ViewAllComapny)
 
 	return router
 }
