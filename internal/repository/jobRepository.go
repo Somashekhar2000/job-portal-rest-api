@@ -10,7 +10,9 @@ import (
 
 type JobRepository interface {
 	CreateJob(jodData model.Job) (model.Response, error)
-	ViewingJobByCompany(cID uint) ([]model.Job, error)
+	GetJobByCompanyID(cID uint) ([]model.Job, error)
+	GetJobByJobID(cID uint) (model.Job, error)
+	GetAllJobs() ([]model.Job, error)
 }
 
 func NewJobRepo(db *gorm.DB) (JobRepository, error) {
@@ -38,14 +40,41 @@ func (r *Repo) CreateJob(jobData model.Job) (model.Response, error) {
 	}, nil
 }
 
-func (r *Repo) ViewingJobByCompany(cID uint) ([]model.Job, error) {
+func (r *Repo) GetJobByCompanyID(cID uint) ([]model.Job, error) {
 
 	var jobData []model.Job
 
 	output := r.db.Where("cid = ?", cID).Find(&jobData)
-	if output.Error != nil {
+	if output.Error != nil || output.RowsAffected == 0 {
 		log.Error().Err(output.Error).Msg("error ivalid company id")
 		return nil, errors.New("invalid company id")
+	}
+
+	return jobData, nil
+}
+
+func (r *Repo) GetJobByJobID(jID uint) (model.Job, error) {
+
+	var jobData model.Job
+
+	output := r.db.Where("id = ?", jID).First(&jobData)
+	if output.Error != nil {
+		log.Error().Err(output.Error).Msg("error in job id")
+		return model.Job{}, errors.New("couls not find the job")
+	}
+
+	return jobData, nil
+}
+
+func (r *Repo) GetAllJobs() ([]model.Job, error) {
+
+	var jobData []model.Job
+
+	output := r.db.Preload("Company").Preload("Location").Preload("TechnologyStack").Preload("Qualifications").Preload("Shift").Find(&jobData)
+
+	if output.Error != nil || output.RowsAffected == 0 {
+		log.Error().Err(output.Error).Msg("error while retriving job data")
+		return nil, errors.New("error while getting all jobs")
 	}
 
 	return jobData, nil

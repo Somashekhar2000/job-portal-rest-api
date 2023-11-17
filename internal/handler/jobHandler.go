@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"job-portal-api/internal/authentication"
 	"job-portal-api/internal/middleware"
 	"job-portal-api/internal/model"
@@ -119,6 +120,7 @@ func (h *Handler) ViewJobByCompanyId(c *gin.Context) {
 	}
 
 	jobData, err := h.serviceJob.ViewJobByCompanyID(uint(cID))
+	fmt.Println("======", jobData)
 	if err != nil {
 		log.Error().Err(err).Str("trace id : ", traceId)
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": http.StatusText(http.StatusBadRequest)})
@@ -130,12 +132,71 @@ func (h *Handler) ViewJobByCompanyId(c *gin.Context) {
 
 func (h *Handler) ViewJobByJobID(c *gin.Context) {
 
+	ctx := c.Request.Context()
+
+	traceID, ok := ctx.Value(middleware.TraceIDKey).(string)
+	if !ok {
+		log.Info().Msg("trace id missing")
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": http.StatusText(http.StatusInternalServerError)})
+		return
+	}
+
+	_, ok = ctx.Value(authentication.AuthKey).(jwt.RegisteredClaims)
+	if !ok {
+		log.Info().Str("trace id : ", traceID).Msg("login first")
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": http.StatusText(http.StatusUnauthorized)})
+		return
+	}
+
+	id := c.Param("id")
+
+	jID, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		log.Error().Err(err).Str("trace id : ", traceID).Msg("error invalid job id")
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": http.StatusText(http.StatusBadRequest)})
+		return
+	}
+
+	jobData, err := h.serviceJob.ViewJobByJobID(uint(jID))
+	fmt.Println("=========******=============", jobData)
+	fmt.Println("========##########========", err)
+	if err != nil {
+		fmt.Println("======%%%%%%==========", err)
+		log.Error().Err(err).Str("trace id : ", traceID)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": http.StatusText(http.StatusBadRequest)})
+		return
+	}
+
+	c.JSON(http.StatusOK, jobData)
 }
 
 func (h *Handler) ViewAllJobs(c *gin.Context) {
 
+	ctx := c.Request.Context()
+
+	traceId, ok := ctx.Value(middleware.TraceIDKey).(string)
+	if !ok {
+		log.Info().Msg("error missing trace id")
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": http.StatusText(http.StatusInternalServerError)})
+		return
+	}
+
+	_, ok = ctx.Value(authentication.AuthKey).(jwt.RegisteredClaims)
+	if !ok {
+		log.Info().Str("trace id : ", traceId).Msg("login first")
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": http.StatusText(http.StatusUnauthorized)})
+		return
+	}
+
+	jobsData, err := h.serviceJob.ViewAllJobs()
+	if err != nil {
+		log.Error().Err(err).Str("tracr id : ", traceId)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": http.StatusText(http.StatusBadRequest)})
+		return
+	}
+	c.JSON(http.StatusOK, jobsData)
 }
 
 func (h *Handler) ProcessJobApplication(c *gin.Context) {
-
+	
 }

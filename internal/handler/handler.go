@@ -55,6 +55,9 @@ func SetupApi(auth authentication.Authenticaton, userService service.UserService
 
 	router.POST("/api/addjob/companyID/:id", mid.Authentication(jobHandler.CreateJobByCompanyID))
 	router.GET("/api/get_job_by_company_id/:id", mid.Authentication(jobHandler.ViewJobByCompanyId))
+	router.GET("/api/get_job_by_job_id/:id", mid.Authentication(jobHandler.ViewJobByJobID))
+	router.GET("/api/get_jobs", mid.Authentication(jobHandler.ViewAllJobs))
+	router.GET("/api/process_application", mid.Authentication(jobHandler.ProcessJobApplication))
 
 	return router
 }

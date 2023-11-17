@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"job-portal-api/internal/model"
 	"job-portal-api/internal/repository"
 
@@ -12,6 +13,8 @@ import (
 type JobService interface {
 	CreateJobByCompanyId(jobdata model.NewJobs, cID uint) (model.Response, error)
 	ViewJobByCompanyID(cID uint) ([]model.Job, error)
+	ViewJobByJobID(jID uint) (model.Job, error)
+	ViewAllJobs() ([]model.Job, error)
 }
 
 func NewJobService(jobService repository.JobRepository) (JobService, error) {
@@ -80,7 +83,7 @@ func (s *Service) CreateJobByCompanyId(jobDetails model.NewJobs, cID uint) (mode
 
 func (s *Service) ViewJobByCompanyID(cID uint) ([]model.Job, error) {
 
-	jobData, err := s.jobRepo.ViewingJobByCompany(cID)
+	jobData, err := s.jobRepo.GetJobByCompanyID(cID)
 
 	if err != nil {
 		return nil, err
@@ -88,6 +91,26 @@ func (s *Service) ViewJobByCompanyID(cID uint) ([]model.Job, error) {
 
 	if jobData == nil {
 		log.Error().Err(errors.New("error jobs does not exists in this company"))
+		return nil, err
+	}
+
+	return jobData, nil
+}
+
+func (s *Service) ViewJobByJobID(jID uint) (model.Job, error) {
+
+	jobData, err := s.jobRepo.GetJobByJobID(jID)
+	if err != nil {
+		fmt.Println("========-------==========", err)
+		return model.Job{}, err
+	}
+	fmt.Println("[[[[[[[[[[[[]]]]]]]]]]]]")
+	return jobData, nil
+}
+
+func (s *Service) ViewAllJobs() ([]model.Job, error) {
+	jobData, err := s.jobRepo.GetAllJobs()
+	if err != nil {
 		return nil, err
 	}
 
