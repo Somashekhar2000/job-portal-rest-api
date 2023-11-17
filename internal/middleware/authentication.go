@@ -35,12 +35,14 @@ func (m *Mid) Authentication(next gin.HandlerFunc) gin.HandlerFunc {
 			err := errors.New("authorization header formate is invalid no proper header : bearer <token>")
 			log.Error().Err(err).Str("trace id : ", traceID).Send()
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error ": http.StatusText(http.StatusInternalServerError)})
+			return
 		}
 
 		claims, err := m.auth.ValidateToken(parts[1])
 		if err != nil {
 			log.Error().Err(err).Str("Trace id : ", traceID).Send()
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error ": http.StatusText(http.StatusInternalServerError)})
+			return
 		}
 
 		ctx = context.WithValue(ctx, authentication.AuthKey, claims)

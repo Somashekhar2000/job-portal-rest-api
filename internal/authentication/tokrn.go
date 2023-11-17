@@ -34,7 +34,7 @@ func (a *Auth) ValidateToken(token string) (jwt.RegisteredClaims, error) {
 
 	if err != nil {
 		log.Info().Msg("error in parsing the token")
-		return jwt.RegisteredClaims{}, errors.New("error in parsing the token")
+		return jwt.RegisteredClaims{}, fmt.Errorf("error in parsing token : %w ", err)
 	}
 
 	//check if token valid or not

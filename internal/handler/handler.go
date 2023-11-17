@@ -1,10 +1,13 @@
 package handler
 
 import (
+	"fmt"
 	"job-portal-api/internal/authentication"
 	"job-portal-api/internal/middleware"
 	"job-portal-api/internal/service"
 	"log"
+	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,9 +15,10 @@ import (
 type Handler struct {
 	serviceUser    service.UserService
 	serviceComapny service.ComapnyService
+	serviceJob     service.JobService
 }
 
-func SetupApi(auth authentication.Authenticaton, userService service.UserService, comapnyService service.ComapnyService) *gin.Engine {
+func SetupApi(auth authentication.Authenticaton, userService service.UserService, comapnyService service.ComapnyService, jobService service.JobService) *gin.Engine {
 
 	router := gin.New()
 
@@ -33,14 +37,38 @@ func SetupApi(auth authentication.Authenticaton, userService service.UserService
 		log.Panic("company handlers are not set")
 	}
 
+	jobHandler, err := NewJobHandler(jobService)
+	if err != nil {
+		log.Panic("job handlers are not set")
+	}
+
 	router.Use(mid.Log(), gin.Recovery())
+
+	router.GET("/api/check", check)
 
 	router.POST("/api/signup", userHandler.Signup)
 	router.POST("/api/login", userHandler.login)
 
-	router.POST("/api/create_comapny", companyHandler.AddCompany)
-	router.GET("/api/get_company/:id", companyHandler.ViewCompanyByID)
-	router.GET("/api/get_companies", companyHandler.ViewAllComapny)
+	router.POST("/api/create_comapny", mid.Authentication(companyHandler.AddCompany))
+	router.GET("/api/get_company/:id", mid.Authentication(companyHandler.ViewCompanyByID))
+	router.GET("/api/get_companies", mid.Authentication(companyHandler.ViewAllComapny))
+
+	router.POST("/api/addjob/companyID/:id", mid.Authentication(jobHandler.CreateJobByCompanyID))
+	router.GET("/api/get_job_by_company_id/:id", mid.Authentication(jobHandler.ViewJobByCompanyId))
 
 	return router
+}
+
+func check(c *gin.Context) {
+
+	time.Sleep(time.Second * 3)
+	select {
+	case <-c.Request.Context().Done():
+		fmt.Println("user not there")
+		return
+	default:
+		c.JSON(http.StatusOK, gin.H{"msg": "statusOk"})
+
+	}
+
 }

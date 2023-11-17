@@ -8,5 +8,6 @@ import (
 type Service struct {
 	userRepo       repository.UserRepository
 	comapnayRepo   repository.ComapnyRepo
+	jobRepo        repository.JobRepository
 	authentication authentication.Authenticaton
 }

@@ -36,7 +36,7 @@ func (r *Repo) CheckUser(email string) (model.User, error) {
 
 	var userData model.User
 
-	data := r.db.Where("email = ?", email).First(userData)
+	data := r.db.Where("email_id = ?", email).First(&userData)
 
 	if data.Error != nil {
 		log.Error().Err(data.Error).Msg("error email not found in database")

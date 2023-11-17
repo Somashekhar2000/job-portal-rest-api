@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"job-portal-api/internal/model"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -36,7 +37,11 @@ func DatabaseConnection() (*gorm.DB, error) {
 	}
 
 	//need auto migrate
-	.
+	err = db.Migrator().AutoMigrate(&model.User{}, &model.Company{}, &model.Job{})
+	if err != nil {
+		log.Error().Err(err).Msg("error in creating tables")
+		return nil, fmt.Errorf("error in creating tables : %w", err)
+	}
 
 	return db, nil
 }

@@ -30,7 +30,7 @@ func StartApp() error {
 	log.Info().Msg("main started : initializing with the authentication support")
 
 	//reading private key file
-	privatePemFile, err := os.ReadFile(`C:\Users\somas\Desktop\job-portal-apis\private.pem`)
+	privatePemFile, err := os.ReadFile(`C:\Users\ORR Training 3\Desktop\my project\job-portal-rest-api\private.pem`)
 	if err != nil {
 		log.Info().Msg("Error in reading private Key file")
 		return fmt.Errorf("error in reading private key file : %w", err)
@@ -44,7 +44,7 @@ func StartApp() error {
 	}
 
 	//reading public key file
-	publicPemFile, err := os.ReadFile(`C:\Users\somas\Desktop\job-portal-apis\pubkey.pem`)
+	publicPemFile, err := os.ReadFile(`C:\Users\ORR Training 3\Desktop\my project\job-portal-rest-api\pubkey.pem`)
 	if err != nil {
 		log.Info().Msg("Error in reading public Key filer")
 		return fmt.Errorf("error in reading public key file : %w", err)
@@ -86,6 +86,12 @@ func StartApp() error {
 		return err
 	}
 
+	jobRepo, err := repository.NewJobRepo(db)
+	if err != nil {
+		log.Info().Msg("error while initializing the job repository")
+		return err
+	}
+
 	userService, err := service.NewUserService(userRepo, auth)
 	if err != nil {
 		log.Info().Msg("error while initializing user service")
@@ -97,13 +103,20 @@ func StartApp() error {
 		log.Info().Msg("error while initializing company service")
 		return fmt.Errorf("error while initializing company service : %w", err)
 	}
+
+	jobService, err := service.NewJobService(jobRepo)
+	if err != nil {
+		log.Info().Msg("error while initializing job service")
+		return fmt.Errorf("error while initializing job service : %w", err)
+	}
+
 	//initilazing http server
 	api := http.Server{
-		Addr:         "8087",
+		Addr:         ":8080",
 		ReadTimeout:  8000 * time.Second,
 		WriteTimeout: 800 * time.Second,
 		IdleTimeout:  800 * time.Second,
-		Handler:      handler.SetupApi(auth, userService, companyService),
+		Handler:      handler.SetupApi(auth, userService, companyService, jobService),
 	}
 
 	serverErrors := make(chan error, 1)
