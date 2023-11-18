@@ -199,4 +199,40 @@ func (h *Handler) ViewAllJobs(c *gin.Context) {
 
 func (h *Handler) ProcessJobApplication(c *gin.Context) {
 	
+	ctx := c.Request.Context()
+
+	traceId, ok := ctx.Value(middleware.TraceIDKey).(string)
+	if !ok {
+		log.Info().Msg("missing trace id")
+		c.AbortWithStatusJSON(http.StatusInternalServerError,gin.H{"error":http.StatusText(http.StatusInternalServerError)})
+		return
+	}
+
+	_, ok = ctx.Value(authentication.AuthKey).(jwt.RegisteredClaims)
+	if !ok {
+		log.Info().Str("tracr id : ",traceId).Msg("login first")
+		c.AbortWithStatusJSON(http.StatusUnauthorized,gin.h{"error":http.StatusText(http.StatusUnauthorized)})
+		return
+	}
+
+	var applications []model.NewUserApplication
+
+	err := json.NewDecoder(c.Request.Body).Decode(&applications)
+	if err!=nil {
+		log.Error().Err(err).Str("trace id : ",traceId).Msg("error in decoding")
+		c.AbortWithStatusJSON(http.StatusBadRequest,gin.H{"error":http.StatusText(http.StatusUnauthorized)})
+		return
+	}
+
+	validate := validator.New()
+
+	err = validate.Struct(applications)
+	if  err!=nil{
+		log.Error().Err(err).Str("trace id : ",traceId).Msg("error in validaing")
+		c.AbortWithStatusJSON(http.StatusBadRequest,gin.H{"error":http.StatusText(http.StatusBadRequest)})
+		return
+	}
+
+	jobApplication,err := h.serviceJob.
+
 }

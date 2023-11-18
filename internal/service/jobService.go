@@ -1,10 +1,12 @@
 package service
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
-	"fmt"
 	"job-portal-api/internal/model"
 	"job-portal-api/internal/repository"
+	"sync"
 
 	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
@@ -15,6 +17,7 @@ type JobService interface {
 	ViewJobByCompanyID(cID uint) ([]model.Job, error)
 	ViewJobByJobID(jID uint) (model.Job, error)
 	ViewAllJobs() ([]model.Job, error)
+	ProcessApplication(ctx context.Context,applications []model.NewUserApplication)([]model.NewUserApplication,error)
 }
 
 func NewJobService(jobService repository.JobRepository) (JobService, error) {
@@ -101,10 +104,8 @@ func (s *Service) ViewJobByJobID(jID uint) (model.Job, error) {
 
 	jobData, err := s.jobRepo.GetJobByJobID(jID)
 	if err != nil {
-		fmt.Println("========-------==========", err)
 		return model.Job{}, err
 	}
-	fmt.Println("[[[[[[[[[[[[]]]]]]]]]]]]")
 	return jobData, nil
 }
 
@@ -115,4 +116,64 @@ func (s *Service) ViewAllJobs() ([]model.Job, error) {
 	}
 
 	return jobData, nil
+}
+
+
+func(s *Service)ProcessApplication(ctx context.Context,applications []model.NewUserApplication)([]model.NewUserApplication,error){
+	wg := new(sync.WaitGroup)
+	ch := make(chan model.NewUserApplication)
+	var finalData []model.NewUserApplication
+
+	for _,v := range applications{
+		wg.Add(1)
+		go func (application model.NewUserApplication)  {
+			defer wg.Done()
+
+			var jobData model.Job
+
+			val,err := s.rdb.GetTheCacheData(ctx,application.Jid)
+
+			if err!=nil {
+				jobDataFromDB, err := s.jobRepo.GetJobByJobID(application.Jid)
+				if err!=nil{
+					log.Error().Err(err).Msg("invalid application job id does not exists")
+					return
+				}
+				err = s.rdb.AddToTheCache(ctx,application.Jid,jobDataFromDB)
+				if err!=nil{
+					return
+				}
+				jobData = jobDataFromDB
+			}else{
+				err = json.Unmarshal([]byte(val),&jobData)
+				if err!=nil {
+					log.Error().Err(err).Msg("error in un marshaling")
+					return
+				}
+			}
+			check := compareData(application,jobData)
+
+
+
+
+		}(v)
+	}
+}
+
+func compareData(application model.NewUserApplication, jobData model.Job)bool{
+	totalFields := 0
+	matchedFields := 0
+
+	totalFields++
+	if application.Jobs.NoticePeriod>=jobData.MinNoticePeriod && application.Jobs.NoticePeriod<=int(jobData.MaxNoticePeriod){
+		matchedFields++
+	}
+
+	totalFields++
+	if application.Jobs.Experience>=jobData.MinExperience && application.Jobs.Experience<=int(jobData.MaxExperience){
+		matchedFields++
+	}
+
+	totalFields++
+	if application.Jobs
 }
