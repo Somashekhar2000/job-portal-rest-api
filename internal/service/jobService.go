@@ -17,7 +17,7 @@ type JobService interface {
 	ViewJobByCompanyID(cID uint) ([]model.Job, error)
 	ViewJobByJobID(jID uint) (model.Job, error)
 	ViewAllJobs() ([]model.Job, error)
-	ProcessApplication(ctx context.Context,applications []model.NewUserApplication)([]model.NewUserApplication,error)
+	ProcessApplication(ctx context.Context,applications []model.NewUserApplication)[]model.NewUserApplication
 }
 
 func NewJobService(jobService repository.JobRepository) (JobService, error) {
@@ -34,9 +34,17 @@ func (s *Service) CreateJobByCompanyId(jobDetails model.NewJobs, cID uint) (mode
 		MinNoticePeriod: jobDetails.MinNoticePeriod,
 		MaxNoticePeriod: jobDetails.MaxNoticePeriod,
 		Description:     jobDetails.Description,
-		Jobtype:         jobDetails.Jobtype,
 		MinExperience:   jobDetails.MinExperience,
 		MaxExperience:   jobDetails.MaxExperience,
+	}
+
+	for _, v := range jobDetails.Jobtype {
+		jobtype := model.JobType{
+			Model: gorm.Model{
+				ID: v,
+			},
+		}
+		jobData.Jobtype = append(jobData.Jobtype, jobtype)
 	}
 
 	for _, v := range jobDetails.Location {
@@ -119,7 +127,7 @@ func (s *Service) ViewAllJobs() ([]model.Job, error) {
 }
 
 
-func(s *Service)ProcessApplication(ctx context.Context,applications []model.NewUserApplication)([]model.NewUserApplication,error){
+func(s *Service)ProcessApplication(ctx context.Context,applications []model.NewUserApplication)[]model.NewUserApplication{
 	wg := new(sync.WaitGroup)
 	ch := make(chan model.NewUserApplication)
 	var finalData []model.NewUserApplication
@@ -153,11 +161,23 @@ func(s *Service)ProcessApplication(ctx context.Context,applications []model.NewU
 			}
 			check := compareData(application,jobData)
 
-
-
+			if check {
+				ch <- application
+			}
 
 		}(v)
 	}
+
+	go func ()  {
+		wg.Wait()
+		close(ch)
+	}()
+
+	for v := range ch {
+		finalData = append(finalData, v)
+	}
+
+	return finalData
 }
 
 func compareData(application model.NewUserApplication, jobData model.Job)bool{
@@ -174,6 +194,75 @@ func compareData(application model.NewUserApplication, jobData model.Job)bool{
 		matchedFields++
 	}
 
+	count := 0
 	totalFields++
-	if application.Jobs
+	for _,v := range application.Jobs.Location{
+		for _,v1 := range jobData.Location{
+			if v == v1.ID{
+				count++
+			}
+		}
+	}
+	if count!=0 {
+		matchedFields++
+	}
+
+	count = 0
+	totalFields++
+	for _,v := range application.Jobs.TechnologyStack{
+		for _,v1 := range jobData.TechnologyStack{
+			if v == v1.ID{
+				count++
+			}
+		}
+	}
+	if count!=0 {
+		matchedFields++
+	}
+
+	count = 0
+	totalFields++
+	for _,v := range application.Jobs.Qualifications{
+		for _,v1 := range jobData.Qualifications{
+			if v == v1.ID{
+				count++
+			}
+		}
+	}
+	if count!=0 {
+		matchedFields++
+	}
+
+	count = 0
+	totalFields++
+	for _,v := range application.Jobs.Shift{
+		for _,v1 := range jobData.Shift{
+			if v == v1.ID{
+				count++
+			}
+		}
+	}
+	if count!=0 {
+		matchedFields++
+	}
+
+	count = 0
+	totalFields++
+	for _,v := range application.Jobs.Jobtype{
+		for _,v1 := range jobData.Jobtype{
+			if v == v1.ID{
+				count++
+			}
+		}
+	}
+	if count!=0 {
+		matchedFields++
+	}
+
+	if matchedFields*2 >= totalFields {
+		return true
+	}
+
+	return false
 }
+

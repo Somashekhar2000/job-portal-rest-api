@@ -16,8 +16,14 @@ type Job struct {
 	MaxExperience   uint              `json:"max_experience" validate:"required"`
 	Qualifications  []Qualification   `json:"qualifications" gorm:"many2many:job_qualification;"`
 	Shift           []Shift           `json:"shifts" gorm:"many2many:job_shift;" `
-	Jobtype         string            `json:"jobtype" validate:"required"`
+	Jobtype         []JobType            `json:"jobtype" validate:"required"`
 }
+
+type JobType struct{
+	gorm.Model
+	JobTypeName string `json:"jobtype"`
+}
+
 type Location struct {
 	gorm.Model
 	PlaceName string `json:"place_name"`
@@ -49,7 +55,7 @@ type NewJobs struct {
 	MaxExperience   uint   `json:"maxExperience" validate:"required"`
 	Qualifications  []uint `json:"qualifications"`
 	Shift           []uint `json:"shifts"`
-	Jobtype         string `json:"jobtype" validate:"required"`
+	Jobtype         []uint   `json:"jobtype" validate:"required"`
 }
 
 type Response struct {
@@ -70,5 +76,5 @@ type Requestfield struct {
 	Experience      int    `json:"experience" validate:"required"`
 	Qualifications  []uint `json:"qualifications"`
 	Shift           []uint `json:"shifts"`
-	Jobtype         string `json:"jobtype" validate:"required"`
+	Jobtype         []uint  `json:"jobtype" validate:"required"`
 }

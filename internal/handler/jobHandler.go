@@ -211,7 +211,7 @@ func (h *Handler) ProcessJobApplication(c *gin.Context) {
 	_, ok = ctx.Value(authentication.AuthKey).(jwt.RegisteredClaims)
 	if !ok {
 		log.Info().Str("tracr id : ",traceId).Msg("login first")
-		c.AbortWithStatusJSON(http.StatusUnauthorized,gin.h{"error":http.StatusText(http.StatusUnauthorized)})
+		c.AbortWithStatusJSON(http.StatusUnauthorized,gin.H{"error":http.StatusText(http.StatusUnauthorized)})
 		return
 	}
 
@@ -233,6 +233,13 @@ func (h *Handler) ProcessJobApplication(c *gin.Context) {
 		return
 	}
 
-	jobApplication,err := h.serviceJob.
+	jobApplication := h.serviceJob.ProcessApplication(ctx,applications)
+	if jobApplication == nil {
+		log.Info().Str("trace id : ",traceId).Msg("all applications rejected")
+		c.JSON(http.StatusBadRequest,gin.H{"error all applications rejected ": http.StatusText(http.StatusBadRequest)})
+		return
+	}
+
+	c.JSON(http.StatusOK,jobApplication)
 
 }
