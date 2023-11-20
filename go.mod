@@ -5,6 +5,7 @@ go 1.21.2
 require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/redis/go-redis/v9 v9.3.0
+	go.uber.org/mock v0.3.0
 	gorm.io/driver/postgres v1.5.4
 )
 

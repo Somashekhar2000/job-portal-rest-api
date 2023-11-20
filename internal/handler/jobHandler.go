@@ -158,10 +158,7 @@ func (h *Handler) ViewJobByJobID(c *gin.Context) {
 	}
 
 	jobData, err := h.serviceJob.ViewJobByJobID(uint(jID))
-	fmt.Println("=========******=============", jobData)
-	fmt.Println("========##########========", err)
 	if err != nil {
-		fmt.Println("======%%%%%%==========", err)
 		log.Error().Err(err).Str("trace id : ", traceID)
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": http.StatusText(http.StatusBadRequest)})
 		return
@@ -220,18 +217,18 @@ func (h *Handler) ProcessJobApplication(c *gin.Context) {
 	err := json.NewDecoder(c.Request.Body).Decode(&applications)
 	if err!=nil {
 		log.Error().Err(err).Str("trace id : ",traceId).Msg("error in decoding")
-		c.AbortWithStatusJSON(http.StatusBadRequest,gin.H{"error":http.StatusText(http.StatusUnauthorized)})
-		return
-	}
-
-	validate := validator.New()
-
-	err = validate.Struct(applications)
-	if  err!=nil{
-		log.Error().Err(err).Str("trace id : ",traceId).Msg("error in validaing")
 		c.AbortWithStatusJSON(http.StatusBadRequest,gin.H{"error":http.StatusText(http.StatusBadRequest)})
 		return
 	}
+
+	// validate := validator.New()
+
+	// err = validate.Struct(applications)
+	// if  err!=nil{
+	// 	log.Error().Err(err).Str("trace id : ",traceId).Msg("error in validaing")
+	// 	c.AbortWithStatusJSON(http.StatusBadRequest,gin.H{"error":http.StatusText(http.StatusBadRequest)})
+	// 	return
+	// }
 
 	jobApplication := h.serviceJob.ProcessApplication(ctx,applications)
 	if jobApplication == nil {

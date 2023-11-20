@@ -30,7 +30,7 @@ func StartApp() error {
 	log.Info().Msg("main started : initializing with the authentication support")
 
 	//reading private key file
-	privatePemFile, err := os.ReadFile(`C:\Users\ORR Training 3\Desktop\my project\job-portal-rest-api\private.pem`)
+	privatePemFile, err := os.ReadFile(`C:\Users\somas\Desktop\job-portal-apis\private.pem`)
 	if err != nil {
 		log.Info().Msg("Error in reading private Key file")
 		return fmt.Errorf("error in reading private key file : %w", err)
@@ -44,7 +44,7 @@ func StartApp() error {
 	}
 
 	//reading public key file
-	publicPemFile, err := os.ReadFile(`C:\Users\ORR Training 3\Desktop\my project\job-portal-rest-api\pubkey.pem`)
+	publicPemFile, err := os.ReadFile(`C:\Users\somas\Desktop\job-portal-apis\pubkey.pem`)
 	if err != nil {
 		log.Info().Msg("Error in reading public Key filer")
 		return fmt.Errorf("error in reading public key file : %w", err)

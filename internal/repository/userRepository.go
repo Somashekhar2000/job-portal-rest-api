@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
+//go:generate mockgen -source=userRepository.go -destination=userRepository_mock.go -package=repository
 type UserRepository interface {
 	CreateUser(userData model.User) (model.User, error)
 	CheckUser(email string) (model.User, error)

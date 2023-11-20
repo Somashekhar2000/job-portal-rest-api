@@ -13,6 +13,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+//go:generate mockgen -source=userHandler.go -destination=.mock/userHandler_mock.go -package=handler
 type UserHandler interface {
 	Signup(c *gin.Context)
 	login(c *gin.Context)

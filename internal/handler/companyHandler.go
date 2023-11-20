@@ -17,6 +17,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+//go:generate mockgen -source=companyHandler.go -destination=.mock/companyHandler_mock.go -package=handler
 type CompanyHandler interface {
 	AddCompany(c *gin.Context)
 	ViewCompanyByID(c *gin.Context)

@@ -12,6 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
+
 type JobService interface {
 	CreateJobByCompanyId(jobdata model.NewJobs, cID uint) (model.Response, error)
 	ViewJobByCompanyID(cID uint) ([]model.Job, error)

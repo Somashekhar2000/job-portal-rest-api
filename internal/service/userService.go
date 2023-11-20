@@ -12,6 +12,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+//go:generate mockgen -source=userService.go -destination=userService_mock.go -package=service
 type UserService interface {
 	UserSignup(userSignup model.UserSignup) (model.User, error)
 	Userlogin(userSignin model.UserLogin) (string, error)

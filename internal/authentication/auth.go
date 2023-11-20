@@ -17,6 +17,7 @@ type Auth struct {
 	publicKey  *rsa.PublicKey
 }
 
+//go:generate mockgen -source=auth.go -destination=auth_mock.go -package=service
 // authentication interface to generate and validat etoken
 type Authenticaton interface {
 	GenerateToken(claims jwt.RegisteredClaims) (string, error)

@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
+//go:generate mockgen -source=companyRepository.go -destination=companyRepository_mock.go -package=repository
 type ComapnyRepo interface {
 	CreateComapny(company model.Company) (model.Company, error)
 	GetCompanyByID(cID uint64) (model.Company, error)
