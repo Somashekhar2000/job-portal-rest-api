@@ -9,6 +9,10 @@ import (
 )
 
 func HashingPassword(password string) (string, error) {
+	if password == "" {
+		return "", errors.New("error in hashing password ")
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Error().Err(err).Msg("error in hashing password")

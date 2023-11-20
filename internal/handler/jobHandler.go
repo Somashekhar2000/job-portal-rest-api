@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"job-portal-api/internal/authentication"
 	"job-portal-api/internal/middleware"
 	"job-portal-api/internal/model"
@@ -120,7 +119,6 @@ func (h *Handler) ViewJobByCompanyId(c *gin.Context) {
 	}
 
 	jobData, err := h.serviceJob.ViewJobByCompanyID(uint(cID))
-	fmt.Println("======", jobData)
 	if err != nil {
 		log.Error().Err(err).Str("trace id : ", traceId)
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": http.StatusText(http.StatusBadRequest)})
@@ -195,29 +193,29 @@ func (h *Handler) ViewAllJobs(c *gin.Context) {
 }
 
 func (h *Handler) ProcessJobApplication(c *gin.Context) {
-	
+
 	ctx := c.Request.Context()
 
 	traceId, ok := ctx.Value(middleware.TraceIDKey).(string)
 	if !ok {
 		log.Info().Msg("missing trace id")
-		c.AbortWithStatusJSON(http.StatusInternalServerError,gin.H{"error":http.StatusText(http.StatusInternalServerError)})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": http.StatusText(http.StatusInternalServerError)})
 		return
 	}
 
 	_, ok = ctx.Value(authentication.AuthKey).(jwt.RegisteredClaims)
 	if !ok {
-		log.Info().Str("tracr id : ",traceId).Msg("login first")
-		c.AbortWithStatusJSON(http.StatusUnauthorized,gin.H{"error":http.StatusText(http.StatusUnauthorized)})
+		log.Info().Str("tracr id : ", traceId).Msg("login first")
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": http.StatusText(http.StatusUnauthorized)})
 		return
 	}
 
 	var applications []model.NewUserApplication
 
 	err := json.NewDecoder(c.Request.Body).Decode(&applications)
-	if err!=nil {
-		log.Error().Err(err).Str("trace id : ",traceId).Msg("error in decoding")
-		c.AbortWithStatusJSON(http.StatusBadRequest,gin.H{"error":http.StatusText(http.StatusBadRequest)})
+	if err != nil {
+		log.Error().Err(err).Str("trace id : ", traceId).Msg("error in decoding")
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": http.StatusText(http.StatusBadRequest)})
 		return
 	}
 
@@ -230,13 +228,13 @@ func (h *Handler) ProcessJobApplication(c *gin.Context) {
 	// 	return
 	// }
 
-	jobApplication := h.serviceJob.ProcessApplication(ctx,applications)
+	jobApplication := h.serviceJob.ProcessApplication(ctx, applications)
 	if jobApplication == nil {
-		log.Info().Str("trace id : ",traceId).Msg("all applications rejected")
-		c.JSON(http.StatusBadRequest,gin.H{"error all applications rejected ": http.StatusText(http.StatusBadRequest)})
+		log.Info().Str("trace id : ", traceId).Msg("all applications rejected")
+		c.JSON(http.StatusBadRequest, gin.H{"error all applications rejected ": http.StatusText(http.StatusBadRequest)})
 		return
 	}
 
-	c.JSON(http.StatusOK,jobApplication)
+	c.JSON(http.StatusOK, jobApplication)
 
 }

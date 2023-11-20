@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"job-portal-api/internal/authentication"
 	"job-portal-api/internal/middleware"
 	"job-portal-api/internal/model"
@@ -45,8 +44,7 @@ func (h *Handler) AddCompany(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error ": http.StatusText(http.StatusInternalServerError)})
 		return
 	}
-	cal, ok := ctx.Value(authentication.AuthKey).(jwt.RegisteredClaims)
-	fmt.Println("[[[[[[[]]]]]]]", cal)
+	_, ok = ctx.Value(authentication.AuthKey).(jwt.RegisteredClaims)
 	if !ok {
 		log.Info().Str("trace Id : ", traceId).Msg("login not success")
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error ": http.StatusText(http.StatusUnauthorized)})

@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"job-portal-api/internal/model"
 	"job-portal-api/internal/repository"
 	"sync"
@@ -12,16 +11,19 @@ import (
 	"gorm.io/gorm"
 )
 
-
+//go:generate mockgen -source=jobService.go -destination=jobService_mock.go -package=service
 type JobService interface {
 	CreateJobByCompanyId(jobdata model.NewJobs, cID uint) (model.Response, error)
 	ViewJobByCompanyID(cID uint) ([]model.Job, error)
 	ViewJobByJobID(jID uint) (model.Job, error)
 	ViewAllJobs() ([]model.Job, error)
-	ProcessApplication(ctx context.Context,applications []model.NewUserApplication)[]model.NewUserApplication
+	ProcessApplication(ctx context.Context, applications []model.NewUserApplication) []model.NewUserApplication
 }
 
 func NewJobService(jobService repository.JobRepository) (JobService, error) {
+	if jobService == nil {
+		log.Info().Msg("jobservice cannot be nil")
+	}
 	return &Service{
 		jobRepo: jobService,
 	}, nil
@@ -101,11 +103,6 @@ func (s *Service) ViewJobByCompanyID(cID uint) ([]model.Job, error) {
 		return nil, err
 	}
 
-	if jobData == nil {
-		log.Error().Err(errors.New("error jobs does not exists in this company"))
-		return nil, err
-	}
-
 	return jobData, nil
 }
 
@@ -127,40 +124,40 @@ func (s *Service) ViewAllJobs() ([]model.Job, error) {
 	return jobData, nil
 }
 
-
-func(s *Service)ProcessApplication(ctx context.Context,applications []model.NewUserApplication)[]model.NewUserApplication{
+func (s *Service) ProcessApplication(ctx context.Context, applications []model.NewUserApplication) []model.NewUserApplication {
 	wg := new(sync.WaitGroup)
 	ch := make(chan model.NewUserApplication)
 	var finalData []model.NewUserApplication
 
-	for _,v := range applications{
+	for _, v := range applications {
 		wg.Add(1)
-		go func (application model.NewUserApplication)  {
+		go func(application model.NewUserApplication) {
 			defer wg.Done()
 
 			var jobData model.Job
 
-			val,err := s.rdb.GetTheCacheData(ctx,application.Jid)
+			val, err := s.rdb.GetTheCacheData(ctx, application.Jid)
 
-			if err!=nil {
+			if err != nil {
 				jobDataFromDB, err := s.jobRepo.GetJobByJobID(application.Jid)
-				if err!=nil{
+				if err != nil {
 					log.Error().Err(err).Msg("invalid application job id does not exists")
 					return
 				}
-				err = s.rdb.AddToTheCache(ctx,application.Jid,jobDataFromDB)
-				if err!=nil{
+				err = s.rdb.AddToTheCache(ctx, application.Jid, jobDataFromDB)
+				if err != nil {
 					return
 				}
 				jobData = jobDataFromDB
-			}else{
-				err = json.Unmarshal([]byte(val),&jobData)
-				if err!=nil {
+
+			} else {
+				err = json.Unmarshal([]byte(val), &jobData)
+				if err != nil {
 					log.Error().Err(err).Msg("error in un marshaling")
 					return
 				}
 			}
-			check := compareData(application,jobData)
+			check := compareData(application, jobData)
 
 			if check {
 				ch <- application
@@ -169,7 +166,7 @@ func(s *Service)ProcessApplication(ctx context.Context,applications []model.NewU
 		}(v)
 	}
 
-	go func ()  {
+	go func() {
 		wg.Wait()
 		close(ch)
 	}()
@@ -181,82 +178,82 @@ func(s *Service)ProcessApplication(ctx context.Context,applications []model.NewU
 	return finalData
 }
 
-func compareData(application model.NewUserApplication, jobData model.Job)bool{
+func compareData(application model.NewUserApplication, jobData model.Job) bool {
 	totalFields := 0
 	matchedFields := 0
 
 	totalFields++
-	if application.Jobs.NoticePeriod>=jobData.MinNoticePeriod && application.Jobs.NoticePeriod<=int(jobData.MaxNoticePeriod){
+	if application.Jobs.NoticePeriod >= jobData.MinNoticePeriod && application.Jobs.NoticePeriod <= int(jobData.MaxNoticePeriod) {
 		matchedFields++
 	}
 
 	totalFields++
-	if application.Jobs.Experience>=jobData.MinExperience && application.Jobs.Experience<=int(jobData.MaxExperience){
+	if application.Jobs.Experience >= jobData.MinExperience && application.Jobs.Experience <= int(jobData.MaxExperience) {
 		matchedFields++
 	}
 
 	count := 0
 	totalFields++
-	for _,v := range application.Jobs.Location{
-		for _,v1 := range jobData.Location{
-			if v == v1.ID{
+	for _, v := range application.Jobs.Location {
+		for _, v1 := range jobData.Location {
+			if v == v1.ID {
 				count++
 			}
 		}
 	}
-	if count!=0 {
+	if count != 0 {
 		matchedFields++
 	}
 
 	count = 0
 	totalFields++
-	for _,v := range application.Jobs.TechnologyStack{
-		for _,v1 := range jobData.TechnologyStack{
-			if v == v1.ID{
+	for _, v := range application.Jobs.TechnologyStack {
+		for _, v1 := range jobData.TechnologyStack {
+			if v == v1.ID {
 				count++
 			}
 		}
 	}
-	if count!=0 {
+	if count != 0 {
 		matchedFields++
 	}
 
 	count = 0
 	totalFields++
-	for _,v := range application.Jobs.Qualifications{
-		for _,v1 := range jobData.Qualifications{
-			if v == v1.ID{
+	for _, v := range application.Jobs.Qualifications {
+		for _, v1 := range jobData.Qualifications {
+			if v == v1.ID {
 				count++
 			}
 		}
 	}
-	if count!=0 {
+	if count != 0 {
 		matchedFields++
 	}
 
 	count = 0
 	totalFields++
-	for _,v := range application.Jobs.Shift{
-		for _,v1 := range jobData.Shift{
-			if v == v1.ID{
+	for _, v := range application.Jobs.Shift {
+		for _, v1 := range jobData.Shift {
+			if v == v1.ID {
 				count++
 			}
 		}
 	}
-	if count!=0 {
+	if count != 0 {
 		matchedFields++
 	}
 
 	count = 0
 	totalFields++
-	for _,v := range application.Jobs.Jobtype{
-		for _,v1 := range jobData.Jobtype{
-			if v == v1.ID{
+	for _, v := range application.Jobs.Jobtype {
+		for _, v1 := range jobData.Jobtype {
+			if v == v1.ID {
 				count++
 			}
 		}
 	}
-	if count!=0 {
+	if count != 0 {
 		matchedFields++
 	}
 
@@ -266,4 +263,3 @@ func compareData(application model.NewUserApplication, jobData model.Job)bool{
 
 	return false
 }
-

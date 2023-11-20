@@ -8,7 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-//go:generate mockgen -source=jobService.go -destination=jobService_mock.go -package=service
+//go:generate mockgen -source=companyService.go -destination=companyService_mock.go -package=service
 type ComapnyService interface {
 	AddingCompany(company model.AddCompany) (model.Company, error)
 	ViewCompanyById(Id uint64) (model.Company, error)
