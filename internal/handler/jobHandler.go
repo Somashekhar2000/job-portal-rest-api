@@ -220,7 +220,7 @@ func (h *Handler) ProcessJobApplication(c *gin.Context) {
 	}
 
 	validate := validator.New()
-	log.Debug().Interface("body", applications).Msg("request body")
+	// log.Debug().Interface("body", applications).Msg("request body")
 	err = validate.Struct(applications)
 	if err != nil {
 		if _, ok := err.(validator.ValidationErrors); ok {

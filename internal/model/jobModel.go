@@ -63,9 +63,9 @@ type Response struct {
 }
 
 type NewUserApplication struct {
-	Name string       `json:"name"`
-	Age  string       `json:"age"`
-	Jid  uint         `json:"jid"`
+	Name string       `json:"name" validate:"required"`
+	Age  string       `json:"age" validate:"required"`
+	Jid  uint         `json:"jid" validate:"required"`
 	Jobs Requestfield `json:"job_application"`
 }
 
