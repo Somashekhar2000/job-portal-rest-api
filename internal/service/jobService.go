@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"job-portal-api/internal/cache"
 	"job-portal-api/internal/model"
 	"job-portal-api/internal/repository"
 	"sync"
@@ -17,15 +18,16 @@ type JobService interface {
 	ViewJobByCompanyID(cID uint) ([]model.Job, error)
 	ViewJobByJobID(jID uint) (model.Job, error)
 	ViewAllJobs() ([]model.Job, error)
-	ProcessApplication(ctx context.Context, applications []model.NewUserApplication) []model.NewUserApplication
+	ProcessApplication(applications []model.NewUserApplication) []model.NewUserApplication
 }
 
-func NewJobService(jobService repository.JobRepository) (JobService, error) {
+func NewJobService(jobService repository.JobRepository, rdb cache.Caching) (JobService, error) {
 	if jobService == nil {
 		log.Info().Msg("jobservice cannot be nil")
 	}
 	return &Service{
 		jobRepo: jobService,
+		rdb:     rdb,
 	}, nil
 }
 
@@ -124,7 +126,8 @@ func (s *Service) ViewAllJobs() ([]model.Job, error) {
 	return jobData, nil
 }
 
-func (s *Service) ProcessApplication(ctx context.Context, applications []model.NewUserApplication) []model.NewUserApplication {
+func (s *Service) ProcessApplication(applications []model.NewUserApplication) []model.NewUserApplication {
+	ctx := context.Background()
 	wg := new(sync.WaitGroup)
 	ch := make(chan model.NewUserApplication)
 	var finalData []model.NewUserApplication

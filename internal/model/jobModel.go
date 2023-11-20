@@ -19,7 +19,7 @@ type Job struct {
 	Jobtype         []JobType         `json:"jobtype" gorm:"many2many:job_type;"`
 }
 
-type JobType struct{
+type JobType struct {
 	gorm.Model
 	JobTypeName string `json:"jobtype"`
 }
@@ -71,10 +71,10 @@ type NewUserApplication struct {
 
 type Requestfield struct {
 	NoticePeriod    int    `json:"noticePeriod" validate:"required"`
-	Location        []uint `json:"location" `
-	TechnologyStack []uint `json:"technologyStack" `
+	Location        []uint `json:"location"`
+	TechnologyStack []uint `json:"technologyStack"`
 	Experience      int    `json:"experience" validate:"required"`
 	Qualifications  []uint `json:"qualifications"`
 	Shift           []uint `json:"shifts"`
-	Jobtype         []uint  `json:"jobtype"`
+	Jobtype         []uint `json:"jobtype"`
 }

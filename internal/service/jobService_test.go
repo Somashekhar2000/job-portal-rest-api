@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"job-portal-api/internal/cache"
 	"job-portal-api/internal/model"
 	"job-portal-api/internal/repository"
 	"reflect"
@@ -57,7 +58,8 @@ func TestService_CreateJobByCompanyId(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mc := gomock.NewController(t)
 			mj := repository.NewMockJobRepository(mc)
-			s, _ := NewJobService(mj)
+			mca := cache.NewMockCaching(mc)
+			s, _ := NewJobService(mj, mca)
 			if tt.mockResponse != nil {
 				mj.EXPECT().CreateJob(gomock.Any()).Return(tt.mockResponse()).AnyTimes()
 			}
@@ -107,7 +109,8 @@ func TestService_ViewJobByCompanyID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mc := gomock.NewController(t)
 			mj := repository.NewMockJobRepository(mc)
-			s, _ := NewJobService(mj)
+			mca := cache.NewMockCaching(mc)
+			s, _ := NewJobService(mj, mca)
 			if tt.mockResponse != nil {
 				mj.EXPECT().GetJobByCompanyID(gomock.Any()).Return(tt.mockResponse()).AnyTimes()
 			}
@@ -157,7 +160,8 @@ func TestService_ViewJobByJobID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mc := gomock.NewController(t)
 			mj := repository.NewMockJobRepository(mc)
-			s, _ := NewJobService(mj)
+			mca := cache.NewMockCaching(mc)
+			s, _ := NewJobService(mj, mca)
 			if tt.mockResponse != nil {
 				mj.EXPECT().GetJobByJobID(gomock.Any()).Return(tt.mockResponse()).AnyTimes()
 			}
@@ -201,7 +205,8 @@ func TestService_ViewAllJobs(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mc := gomock.NewController(t)
 			mj := repository.NewMockJobRepository(mc)
-			s, _ := NewJobService(mj)
+			mca := cache.NewMockCaching(mc)
+			s, _ := NewJobService(mj, mca)
 			if tt.mockResponse != nil {
 				mj.EXPECT().GetAllJobs().Return(tt.mockResponse()).AnyTimes()
 			}

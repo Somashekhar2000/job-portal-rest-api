@@ -219,16 +219,18 @@ func (h *Handler) ProcessJobApplication(c *gin.Context) {
 		return
 	}
 
-	// validate := validator.New()
+	validate := validator.New()
+	log.Debug().Interface("body", applications).Msg("request body")
+	err = validate.Struct(applications)
+	if err != nil {
+		if _, ok := err.(validator.ValidationErrors); ok {
+			log.Error().Err(err).Str("trace id : ", traceId).Msg("error in validaing")
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": http.StatusText(http.StatusBadRequest)})
+			return
+		}
+	}
 
-	// err = validate.Struct(applications)
-	// if  err!=nil{
-	// 	log.Error().Err(err).Str("trace id : ",traceId).Msg("error in validaing")
-	// 	c.AbortWithStatusJSON(http.StatusBadRequest,gin.H{"error":http.StatusText(http.StatusBadRequest)})
-	// 	return
-	// }
-
-	jobApplication := h.serviceJob.ProcessApplication(ctx, applications)
+	jobApplication := h.serviceJob.ProcessApplication(applications)
 	if jobApplication == nil {
 		log.Info().Str("trace id : ", traceId).Msg("all applications rejected")
 		c.JSON(http.StatusBadRequest, gin.H{"error all applications rejected ": http.StatusText(http.StatusBadRequest)})

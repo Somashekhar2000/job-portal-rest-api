@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"job-portal-api/internal/authentication"
+	"job-portal-api/internal/cache"
 	"job-portal-api/internal/database"
 	"job-portal-api/internal/handler"
 	"job-portal-api/internal/repository"
@@ -30,7 +31,7 @@ func StartApp() error {
 	log.Info().Msg("main started : initializing with the authentication support")
 
 	//reading private key file
-	privatePemFile, err := os.ReadFile(`C:\Users\somas\Desktop\job-portal-apis\private.pem`)
+	privatePemFile, err := os.ReadFile(`C:\Users\ORR Training 3\Desktop\my project\job-portal-rest-api\private.pem`)
 	if err != nil {
 		log.Info().Msg("Error in reading private Key file")
 		return fmt.Errorf("error in reading private key file : %w", err)
@@ -44,7 +45,7 @@ func StartApp() error {
 	}
 
 	//reading public key file
-	publicPemFile, err := os.ReadFile(`C:\Users\somas\Desktop\job-portal-apis\pubkey.pem`)
+	publicPemFile, err := os.ReadFile(`C:\Users\ORR Training 3\Desktop\my project\job-portal-rest-api\pubkey.pem`)
 	if err != nil {
 		log.Info().Msg("Error in reading public Key filer")
 		return fmt.Errorf("error in reading public key file : %w", err)
@@ -104,7 +105,15 @@ func StartApp() error {
 		return fmt.Errorf("error while initializing company service : %w", err)
 	}
 
-	jobService, err := service.NewJobService(jobRepo)
+	redis := database.ConnectToRedis()
+
+	rdb, err := cache.NewRDBLayer(redis)
+	if err != nil {
+		log.Info().Msg("error while initializing redis service")
+		return fmt.Errorf("error while initializing redis service : %w", err)
+	}
+
+	jobService, err := service.NewJobService(jobRepo, rdb)
 	if err != nil {
 		log.Info().Msg("error while initializing job service")
 		return fmt.Errorf("error while initializing job service : %w", err)

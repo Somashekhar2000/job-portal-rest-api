@@ -9,7 +9,6 @@
 package service
 
 import (
-	context "context"
 	model "job-portal-api/internal/model"
 	reflect "reflect"
 
@@ -55,17 +54,17 @@ func (mr *MockJobServiceMockRecorder) CreateJobByCompanyId(jobdata, cID any) *go
 }
 
 // ProcessApplication mocks base method.
-func (m *MockJobService) ProcessApplication(ctx context.Context, applications []model.NewUserApplication) []model.NewUserApplication {
+func (m *MockJobService) ProcessApplication(applications []model.NewUserApplication) []model.NewUserApplication {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ProcessApplication", ctx, applications)
+	ret := m.ctrl.Call(m, "ProcessApplication", applications)
 	ret0, _ := ret[0].([]model.NewUserApplication)
 	return ret0
 }
 
 // ProcessApplication indicates an expected call of ProcessApplication.
-func (mr *MockJobServiceMockRecorder) ProcessApplication(ctx, applications any) *gomock.Call {
+func (mr *MockJobServiceMockRecorder) ProcessApplication(applications any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProcessApplication", reflect.TypeOf((*MockJobService)(nil).ProcessApplication), ctx, applications)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProcessApplication", reflect.TypeOf((*MockJobService)(nil).ProcessApplication), applications)
 }
 
 // ViewAllJobs mocks base method.
