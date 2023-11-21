@@ -221,3 +221,54 @@ func TestService_ViewAllJobs(t *testing.T) {
 		})
 	}
 }
+
+func TestService_ProcessApplication(t *testing.T) {
+	type args struct {
+		applications []model.NewUserApplication
+	}
+	tests := []struct {
+		name string
+		s    *Service
+		args args
+		want []model.NewUserApplication
+	}{
+		{
+			name: "failure",
+			s: &Service{jobRepo: &repository.MockJobRepository{}},
+			args: args{applications: []model.NewUserApplication{}},
+			want: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.s.ProcessApplication(tt.args.applications); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Service.ProcessApplication() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestCompareData(t *testing.T) {
+	type args struct {
+		application model.NewUserApplication
+		jobData     model.Job
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "failure",
+			args: args{application: model.NewUserApplication{}},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := CompareData(tt.args.application, tt.args.jobData); got != tt.want {
+				t.Errorf("CompareData() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

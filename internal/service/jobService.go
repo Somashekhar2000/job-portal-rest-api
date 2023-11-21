@@ -160,7 +160,7 @@ func (s *Service) ProcessApplication(applications []model.NewUserApplication) []
 					return
 				}
 			}
-			check := compareData(application, jobData)
+			check := CompareData(application, jobData)
 
 			if check {
 				ch <- application
@@ -181,7 +181,7 @@ func (s *Service) ProcessApplication(applications []model.NewUserApplication) []
 	return finalData
 }
 
-func compareData(application model.NewUserApplication, jobData model.Job) bool {
+func CompareData(application model.NewUserApplication, jobData model.Job) bool {
 	totalFields := 0
 	matchedFields := 0
 
