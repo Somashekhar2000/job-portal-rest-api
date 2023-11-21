@@ -221,3 +221,59 @@ func TestService_ViewAllJobs(t *testing.T) {
 		})
 	}
 }
+
+func TestService_ProcessApplication(t *testing.T) {
+	type args struct {
+		applications []model.NewUserApplication
+	}
+	tests := []struct {
+		name string
+		s    *Service
+		args args
+		want []model.NewUserApplication
+	}{
+		{
+			name: "failure",
+			s:    &Service{userRepo: &repository.MockUserRepository{}},
+			args: args{applications: []model.NewUserApplication{
+				{
+					Name: "John Doe 1",
+					Age:  "34",
+					Jid:  1,
+					Jobs: model.Requestfield{
+						NoticePeriod:    1,
+						Location:        []uint{1, 2},
+						TechnologyStack: []uint{1, 2},
+						Experience:      2,
+						Qualifications:  []uint{1, 2},
+						Shift:           []uint{1, 2},
+						Jobtype:         []uint{1, 2},
+					},
+				},
+			}},
+			want: []model.NewUserApplication{
+				{
+					Name: "John Doe 1",
+					Age:  "34",
+					Jid:  1,
+					Jobs: model.Requestfield{
+						NoticePeriod:    1,
+						Location:        []uint{1, 2},
+						TechnologyStack: []uint{1, 2},
+						Experience:      2,
+						Qualifications:  []uint{1, 2},
+						Shift:           []uint{1, 2},
+						Jobtype:         []uint{1, 2},
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.s.ProcessApplication(tt.args.applications); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Service.ProcessApplication() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
