@@ -234,6 +234,7 @@ func TestService_ProcessApplication(t *testing.T) {
 	}{
 		{
 			name: "failure",
+<<<<<<< HEAD
 			s:    &Service{userRepo: &repository.MockUserRepository{}},
 			args: args{applications: []model.NewUserApplication{
 				{
@@ -267,6 +268,11 @@ func TestService_ProcessApplication(t *testing.T) {
 					},
 				},
 			},
+=======
+			s: &Service{jobRepo: &repository.MockJobRepository{}},
+			args: args{applications: []model.NewUserApplication{}},
+			want: nil,
+>>>>>>> 792ab581beb7bdf86fffa7421c1637cf4e747e33
 		},
 	}
 	for _, tt := range tests {
@@ -277,3 +283,31 @@ func TestService_ProcessApplication(t *testing.T) {
 		})
 	}
 }
+<<<<<<< HEAD
+=======
+
+func TestCompareData(t *testing.T) {
+	type args struct {
+		application model.NewUserApplication
+		jobData     model.Job
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "failure",
+			args: args{application: model.NewUserApplication{}},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := CompareData(tt.args.application, tt.args.jobData); got != tt.want {
+				t.Errorf("CompareData() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+>>>>>>> 792ab581beb7bdf86fffa7421c1637cf4e747e33
