@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"job-portal-api/config"
 	"job-portal-api/internal/authentication"
 	"job-portal-api/internal/cache"
 	"job-portal-api/internal/database"
@@ -27,6 +28,11 @@ func main() {
 }
 
 func StartApp() error {
+
+	cfg := config.GetConfig()
+
+	log.Info().Interface("cfg", cfg).Msg("config")
+
 	//initializing authentication support
 	log.Info().Msg("main started : initializing with the authentication support")
 

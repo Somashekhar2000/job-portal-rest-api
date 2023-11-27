@@ -3,6 +3,7 @@ module job-portal-api
 go 1.21.2
 
 require (
+	github.com/Netflix/go-env v0.0.0-20220526054621-78278af1949d
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/redis/go-redis/v9 v9.3.0
 	go.uber.org/mock v0.3.0

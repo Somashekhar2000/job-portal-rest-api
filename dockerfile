@@ -13,10 +13,12 @@ RUN go build -o server cmd/job-portal-api/main.go
 
 # CMD [ "./server" ]
 
-FROM alpine
+FROM scratch
 
-WORKDIR /build
+WORKDIR /app
 
 COPY --from=builder /app/server .
+COPY --from=builder /app/private.pem .
+COPY --from=builder /app/pubkey.pem .
 
 CMD [ "./server" ]

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"job-portal-api/internal/model"
+	"os"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -13,8 +14,7 @@ import (
 
 func DatabaseConnection() (*gorm.DB, error) {
 
-	dsn := "host=postgres user=postgres password=1234 dbname=jobportalrestapi port=5432 sslmode=disable TimeZone=Asia/Shanghai"
-
+	dsn := os.Getenv("DB_DSN")
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Info().Msg("error in opening database connection")
